@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang = "en-US">
+<head>
+    <!-- Made with love <3 by @equilnite (Edward Chang) on GitHub! -->
+    <!-- Metadata -->
+    <title>Wright Stuff Timer</title>
+    <meta name="description"
+        content="A timer made for the Science Olympiad event Wright Stuff">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" type="text/css" href="timer.css">
+</head>
+<body>
+    <h1>Wright Stuff Timer</h1>
+    <div id="timer"></div>
+    <div id="process"></div>
+    <ul>
+        <li><button onclick = "timer.edit(180);"> Start Pre-flight Time (3 Minutes)</button></li>
+        <li><button onclick = "timer.edit(480);"> Start Flight Time (8 Minutes)</button></li>
+        <li><button onclick = "timer.pause();"> Pause (Please only click once consecutively) </button></li>
+        <li><button onclick= "timer.resume();"> Resume </button></li>
+        <li><button onclick = "timer.reset();"> Reset </button></li>
+    </ul>
+    <script>
+        function startTimer(seconds) { // special thanks to Niet the Dark Absol for code to help me to start this https://stackoverflow.com/questions/16134997/how-to-pause-and-resume-a-javascript-timer
+            var startTime, timer, obj, ms = seconds * 1000,
+                display = document.getElementById("timer"),
+                process = document.getElementById("process");
+            var pre = true;
+            display.innerHTML = '3:00'
+            obj = {};
+            obj.resume = function () {
+                startTime = new Date().getTime();
+                timer = setInterval(obj.step, 100); // adjust this number to affect granularity
+                // lower numbers are more accurate, but more CPU-expensive
+                process.innerHTML = obj.get_process()
+            };
+            obj.pause = function () {
+                ms = obj.step();
+                clearInterval(timer);
+            };
+            obj.step = function () {
+                var now = Math.max(0, ms - (new Date().getTime() - startTime)),
+                    m = Math.floor(now / 60000), s = Math.floor(now / 1000) % 60;
+                s = (s < 10 ? "0" : "") + s;
+                display.innerHTML = m + ":" + s;
+                if (now == 0) {
+                    clearInterval(timer);
+                    if (pre) {
+                        obj.edit(480);
+                        pre = false;
+                        alert('The Pre-flight period is over! Now continuing to the Flight period');
+                    }
+                    else {
+                        obj.reset();
+                        pre = true;
+                        alert('The Flight period is over! Please stop any competitors.')
+                    }
+                }
+                return now;
+            };
+            obj.edit = function (x) {
+                clearInterval(timer);
+                ms = x*1000;
+                if (x == 180) {
+                    display.innerHTML = '3:00';
+                    pre = true;
+                }
+                else {
+                    display.innerHTML = '8:00';
+                    pre = false;
+                }
+                obj.resume();
+            };
+            obj.reset = function() {
+                clearInterval(timer);
+                ms = seconds * 1000;
+                display.innerHTML = "3:00";
+                pre = true;
+                process.innerHTML = obj.get_process()
+            };
+            obj.get_process = function() {
+                if (pre) return("Currently timing Pre-flight period");
+                else return("Currently timing Flight period");
+            }
+            process.innerHTML = obj.get_process()
+            return obj;
+        }
+        // start:
+        var timer = startTimer(180);
+    </script>
+</body>
+
+</html>
